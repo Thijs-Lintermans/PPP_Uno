@@ -17,7 +17,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &47489345841356899
 RectTransform:
   m_ObjectHideFlags: 0
@@ -961,7 +961,7 @@ GameObject:
   - component: {fileID: 4744113834761528806}
   - component: {fileID: 4582208754489134026}
   m_Layer: 5
-  m_Name: ValueNumber (1)
+  m_Name: ValueNumberTL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1169,6 +1169,7 @@ GameObject:
   - component: {fileID: 5313655184580922156}
   - component: {fileID: 8254894811932066552}
   - component: {fileID: 9034107245868396160}
+  - component: {fileID: 2023084976239136978}
   m_Layer: 5
   m_Name: CardPrefab
   m_TagString: Untagged
@@ -1237,6 +1238,60 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1.36
+--- !u!114 &2023084976239136978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5822210638604798001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a8d0686ebcc724f9efa30c91a9490d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  red:
+    serializedVersion: 2
+    rgba: 4284703743
+  blue:
+    serializedVersion: 2
+    rgba: 4294930544
+  yellow:
+    serializedVersion: 2
+    rgba: 4284993279
+  green:
+    serializedVersion: 2
+    rgba: 4285726578
+  black:
+    serializedVersion: 2
+    rgba: 4278190080
+  reverse: {fileID: 2006926213, guid: f2f447a96087e6a49ac530e7feeba74e, type: 3}
+  skip: {fileID: 49967264, guid: f2f447a96087e6a49ac530e7feeba74e, type: 3}
+  plusTwo: {fileID: -998411966, guid: f2f447a96087e6a49ac530e7feeba74e, type: 3}
+  plusFour: {fileID: -755567797, guid: f2f447a96087e6a49ac530e7feeba74e, type: 3}
+  baseCardColor: {fileID: 8433899796621010295}
+  imageCenter: {fileID: 6958310282889943964}
+  valueImageCenter: {fileID: 9031821548200078081}
+  valueTextCenter: {fileID: 5540169743186723611}
+  wildImage: {fileID: 1544043997112717029}
+  topLeftCenter: {fileID: 1523256020990154533}
+  bottomLeftCenter: {fileID: 2361185764879085257}
+  topRightCenter: {fileID: 6406917308945235806}
+  bottomRightCenter: {fileID: 9143477781386039282}
+  valueImageTL: {fileID: 8721117999321854430}
+  valueTextTL: {fileID: 4582208754489134026}
+  wildImageTL: {fileID: 6410251459279389264}
+  topLeftTL: {fileID: 548037400922310208}
+  bottomLeftTl: {fileID: 8296886045359250702}
+  topRightTL: {fileID: 378914036479411808}
+  bottomRightTL: {fileID: 1665034361349028269}
+  valueImageBR: {fileID: 239068392117584158}
+  valueTextBR: {fileID: 1847604286348266459}
+  wildImageBR: {fileID: 4651541474782199340}
+  topLeftBR: {fileID: 5078243531919369772}
+  bottomLeftBR: {fileID: 5522944857152241923}
+  topRightBR: {fileID: 6626763239966482054}
+  bottomRightBR: {fileID: 415088009929547315}
 --- !u!1 &6410251459279389264
 GameObject:
   m_ObjectHideFlags: 0
@@ -1249,7 +1304,7 @@ GameObject:
   - component: {fileID: 8272340189991372825}
   - component: {fileID: 4974473424959538734}
   m_Layer: 5
-  m_Name: WildImage (1)
+  m_Name: WildImageTL
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1596,7 +1651,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2056568721071467877
 RectTransform:
   m_ObjectHideFlags: 0
