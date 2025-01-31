@@ -44,6 +44,19 @@ public class CardDisplay : MonoBehaviour
     [SerializeField] Image topRightBR;
     [SerializeField] Image bottomRightBR;
 
+    //void OnValidate()//For debuggin only
+    //{
+    //    SetAllColors(CardColor.GREEN);
+    //}
+
+    Card myCard;
+
+    public void SetCard(Card card)
+    {
+        myCard = card;
+        SetAllColors(card.cardColor);
+    }
+
     void SetAllColors(CardColor cardColor)
     {
         switch (cardColor)
@@ -76,6 +89,23 @@ public class CardDisplay : MonoBehaviour
                 {
                     baseCardColor.color = black;
                     imageCenter.color = black;
+
+                    //wild cards
+                    topLeftCenter.color = red;
+                    topRightCenter.color = blue;
+                    bottomLeftCenter.color = green; 
+                    bottomRightCenter.color = yellow;
+
+                    topLeftTL.color = red;
+                    topRightTL.color = blue;
+                    bottomLeftTl.color = green;
+                    bottomRightTL.color = yellow;
+
+                    topLeftBR.color = red;
+                    topRightBR.color = blue;
+                    bottomLeftBR.color = green;
+                    bottomRightBR.color = yellow;
+
                 }
                 break;
         }
