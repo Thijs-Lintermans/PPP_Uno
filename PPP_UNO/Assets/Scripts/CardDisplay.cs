@@ -43,4 +43,41 @@ public class CardDisplay : MonoBehaviour
     [SerializeField] Image bottomLeftBR;
     [SerializeField] Image topRightBR;
     [SerializeField] Image bottomRightBR;
+
+    void SetAllColors(CardColor cardColor)
+    {
+        switch (cardColor)
+        {
+            case CardColor.RED:
+            {
+                baseCardColor.color = red;
+                imageCenter.color = red;
+            }
+            break;
+            case CardColor.GREEN:
+                {
+                    baseCardColor.color = green;
+                    imageCenter.color = green;
+                }
+                break;
+            case CardColor.YELLOW:
+                {
+                    baseCardColor.color = yellow;
+                    imageCenter.color = yellow;
+                }
+                break;
+            case CardColor.BLUE:
+                {
+                    baseCardColor.color = blue;
+                    imageCenter.color = blue;
+                }
+                break;
+            case CardColor.NONE:
+                {
+                    baseCardColor.color = black;
+                    imageCenter.color = black;
+                }
+                break;
+        }
+    }
 }
