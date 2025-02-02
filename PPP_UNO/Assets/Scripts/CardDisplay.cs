@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -55,6 +56,7 @@ public class CardDisplay : MonoBehaviour
     {
         myCard = card;
         SetAllColors(card.cardColor);
+        SetValue(card.cardValue);
     }
 
     void SetAllColors(CardColor cardColor)
@@ -106,6 +108,82 @@ public class CardDisplay : MonoBehaviour
                     bottomLeftBR.color = green;
                     bottomRightBR.color = yellow;
 
+                }
+                break;
+        }
+    }
+
+    void SetValue(CardValue cardValue)
+    {
+        //deactivate specials
+        wildImage.SetActive(false);
+        wildImageBR.SetActive(false);
+        wildImageTL.SetActive(false);
+
+        valueImageCenter.gameObject.SetActive(false);
+        valueImageBR.gameObject.SetActive(false);
+        valueImageTL.gameObject.SetActive(false);
+        switch (cardValue)
+        {
+            case CardValue.SKIP:
+                {
+                    valueImageCenter.sprite = skip;
+                    valueImageCenter.gameObject.SetActive(true);
+                    valueImageBR.sprite = skip;
+                    valueImageBR.gameObject.SetActive(true);
+                    valueImageTL.sprite = skip;
+                    valueImageTL.gameObject.SetActive(true);
+                    valueTextCenter.text = "";
+                    valueTextTL.text = "";
+                    valueTextBR.text = "";
+                }
+                break;
+            case CardValue.REVERSE:
+                {
+                    valueImageCenter.sprite = reverse;
+                    valueImageCenter.gameObject.SetActive(true);
+                    valueImageBR.sprite = reverse;
+                    valueImageBR.gameObject.SetActive(true);
+                    valueImageTL.sprite = reverse;
+                    valueImageTL.gameObject.SetActive(true);
+                    valueTextCenter.text = "";
+                    valueTextTL.text = "";
+                    valueTextBR.text = "";
+                }
+                break;
+            case CardValue.DRAW_TWO:
+                {
+                    valueImageCenter.sprite = plusTwo;
+                    valueImageCenter.gameObject.SetActive(true);
+                    valueTextCenter.text = "";
+                    valueTextTL.text = "+2";
+                    valueTextBR.text = "+2";
+                }
+                break;
+            case CardValue.WILD_DRAW_FOUR:
+                {
+                    valueImageCenter.sprite = plusFour;
+                    valueImageCenter.gameObject.SetActive(true);
+                    valueTextCenter.text = "";
+                    valueTextTL.text = "+4";
+                    valueTextBR.text = "+4";
+                }
+                break;
+            case CardValue.WILD:
+                {
+                    wildImage.SetActive(true);
+                    wildImageBR.SetActive(true);
+                    wildImageTL.SetActive(true);
+                    valueTextCenter.text = "";
+                    valueTextTL.text = "";
+                    valueTextBR.text = "";
+                }
+                break;
+            default:
+                {
+                    valueTextCenter.text = ((int)cardValue).ToString();
+                    valueTextTL.text = ((int)cardValue).ToString();
+                    valueTextBR.text = ((int)cardValue).ToString();
                 }
                 break;
         }
