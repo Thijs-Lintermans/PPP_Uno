@@ -47,4 +47,17 @@ public class Deck : MonoBehaviour
             cardDeck[randomIndex] = temp;
         }
     }
+
+    public Card DrawCard()
+    {
+        if(cardDeck.Count == 0)
+        {
+            return null;
+        }
+
+        Card drawnCard = cardDeck[0];
+        cardDeck.RemoveAt(0);
+
+        return drawnCard;
+    }
 }
