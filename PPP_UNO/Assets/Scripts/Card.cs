@@ -30,6 +30,7 @@ public enum CardValue
     WILD_DRAW_FOUR
 }
 
+//[System.Serializable]
 public class Card
 {
     public CardColor cardColor;
