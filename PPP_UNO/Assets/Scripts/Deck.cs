@@ -6,10 +6,10 @@ public class Deck : MonoBehaviour
 {
     List<Card> cardDeck = new List<Card>();
     // Start is called before the first frame update
-    void Start()
-    {
-        InitializeDeck();
-    }
+    //void Start()
+    //{
+    //    InitializeDeck();
+    //}
 
     public void InitializeDeck()
     {

@@ -23,4 +23,42 @@ public class GameManager : MonoBehaviour
     {
         Instance = this;
     }
+
+    private void Start()
+    {
+        //Initialize new deck of cards
+        deck.InitializeDeck();
+        //initialize players
+        InitializePlayers();
+        //deal cards
+        DealCards();
+        //start game
+    }
+
+    void InitializePlayers()
+    {
+        players.Clear();
+
+        players.Add(new Player("Player1"));
+
+        for (int i = 0; i < numberOfAiPlayers; i++)
+        {
+            players.Add(new AiPlayer("AI " +  (i+1)));
+        }
+    }
+
+    void DealCards()
+    {
+        for (int i = 0; i < startingHandSize; i++)
+        {
+            foreach(Player player in players)
+            {
+                player.DrawCard(deck.DrawCard());
+            }
+        }
+
+        //display the player hand
+
+        //display ai hands
+    }
 }
