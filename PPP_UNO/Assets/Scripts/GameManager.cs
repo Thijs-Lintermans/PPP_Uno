@@ -96,6 +96,15 @@ public class GameManager : MonoBehaviour
                 yield return new WaitForSeconds(0.1f);
             }
         }
+        //hand out top card
+        Card pileCard = deck.DrawCard();
+        GameObject newCard = Instantiate(cardPrefab);
+        MoveCardToPile(newCard); 
+        CardDisplay display = newCard.GetComponentInChildren<CardDisplay>();
+        display.SetCard(pileCard, null);
+        display.ShowCard();
+        newCard.GetComponentInChildren<CardInteraction>().enabled = false;
+
         //start the game
         Debug.Log("the game is allowed to start");
         humanHasTurn = true;
@@ -119,7 +128,12 @@ public class GameManager : MonoBehaviour
     {
         currentCard.transform.SetParent(discardPileTransform);
         currentCard.transform.localPosition = Vector3.zero;
-        //currentCard.transform.localScale = Vector3.one;
+        currentCard.transform.localScale = Vector3.one;
+
+        RectTransform cardRect = currentCard.GetComponent<RectTransform>();
+        RectTransform pileRect = discardPileTransform.GetComponent<RectTransform>();
+
+        cardRect.sizeDelta = pileRect.sizeDelta;
 
         //unhide the card
     }
