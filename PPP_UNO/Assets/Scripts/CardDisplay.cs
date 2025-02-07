@@ -44,6 +44,8 @@ public class CardDisplay : MonoBehaviour
     [SerializeField] Image bottomLeftBR;
     [SerializeField] Image topRightBR;
     [SerializeField] Image bottomRightBR;
+    [Header("Card Back")]
+    [SerializeField] GameObject cardBack;
 
     //void OnValidate()//For debuggin only
     //{
@@ -51,12 +53,16 @@ public class CardDisplay : MonoBehaviour
     //}
 
     Card myCard;
+    public Card MyCard => myCard;
+    Player cardOwner;
+    public Player Owner => cardOwner;
 
-    public void SetCard(Card card)
+    public void SetCard(Card card, Player owner)
     {
         myCard = card;
         SetAllColors(card.cardColor);
         SetValue(card.cardValue);
+        cardOwner = owner;
     }
 
     void SetAllColors(CardColor cardColor)
@@ -187,5 +193,15 @@ public class CardDisplay : MonoBehaviour
                 }
                 break;
         }
+    }
+
+    public void ShowCard()
+    {
+        cardBack.SetActive(false);
+    }
+
+    public void HideCard()
+    {
+        cardBack.SetActive(true);
     }
 }

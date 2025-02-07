@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -18,6 +19,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] int numberOfAiPlayers = 3;
     [SerializeField] int startingHandSize = 7;
     int currentPlayer = 0;
+    int playDirection = 1;//1 // -1
+    [Header("Gameplay")]
+    [SerializeField] Transform discardPileTransform;
+    [SerializeField] CardDisplay topCard;
+
+    public bool humanHasTurn { get; private set; }
  
     void Awake()
     {
@@ -31,7 +38,7 @@ public class GameManager : MonoBehaviour
         //initialize players
         InitializePlayers();
         //deal cards
-        DealCards();
+        StartCoroutine(DealStartingCards());
         //start game
     }
 
@@ -39,7 +46,7 @@ public class GameManager : MonoBehaviour
     {
         players.Clear();
 
-        players.Add(new Player("Player1"));
+        players.Add(new Player("Player1", true));
 
         for (int i = 0; i < numberOfAiPlayers; i++)
         {
@@ -60,5 +67,119 @@ public class GameManager : MonoBehaviour
         //display the player hand
 
         //display ai hands
+    }
+
+    IEnumerator DealStartingCards()
+    {
+        for (int i = 0; i < startingHandSize; i++)
+        {
+            foreach (Player player in players)
+            {
+                Card drawnCard = deck.DrawCard();
+                player.DrawCard(drawnCard);
+
+                //visualise cards
+                Transform hand = player.IsHuman ? playerHandTransform : aiHandTransforms[players.IndexOf(player)-1];
+                GameObject card = Instantiate(cardPrefab, hand, false);
+
+                //Draw card correctly
+                CardDisplay cardDisplay = card.GetComponentInChildren<CardDisplay>();
+                cardDisplay.SetCard(drawnCard, player);//only for human
+
+                // for AI players
+                if (player.IsHuman)
+                {
+                    //show the back side
+                    cardDisplay.ShowCard();
+                }
+
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+        //start the game
+        Debug.Log("the game is allowed to start");
+        humanHasTurn = true;
+    }
+
+    public void PlayCard(CardDisplay cardDisplay)
+    {
+        Card cardToPlay = cardDisplay.MyCard;
+        //Remove the player hand
+        players[currentPlayer].PlayCard(cardToPlay);
+        //unhide the card if its an ai player
+        //move the card object to discard pile
+        MoveCardToPile(cardDisplay.transform.parent.gameObject);
+        //update top card
+        topCard = cardDisplay;
+        //implement possible logic: what should happen based card played/effects
+        OnCardPlayed();
+    }
+
+    void MoveCardToPile(GameObject currentCard)
+    {
+        currentCard.transform.SetParent(discardPileTransform);
+        currentCard.transform.localPosition = Vector3.zero;
+        //currentCard.transform.localScale = Vector3.one;
+
+        //unhide the card
+    }
+
+    void OnCardPlayed()
+    {
+        //Do all effects needed
+
+
+        SwitchPlayer();
+    }
+
+    public void DrawCardFromDeck()
+    {
+        Card drawnCard = deck.DrawCard();
+        Player player = players[currentPlayer];
+
+        if (drawnCard != null)
+        {
+            player.DrawCard(drawnCard);
+
+            //visualise cards
+            Transform hand = player.IsHuman ? playerHandTransform : aiHandTransforms[players.IndexOf(player) - 1];
+            GameObject card = Instantiate(cardPrefab, hand, false);
+
+            //Draw card correctly
+            CardDisplay cardDisplay = card.GetComponentInChildren<CardDisplay>();
+            cardDisplay.SetCard(drawnCard, player);//only for human
+
+            // for AI players
+            if (player.IsHuman)
+            {
+                //show the back side
+                cardDisplay.ShowCard();
+            }
+        }
+    }
+
+    void SwitchPlayer()
+    {
+        humanHasTurn = false;
+        currentPlayer += playDirection;
+
+        if (currentPlayer > players.Count)
+        {
+            currentPlayer = 0;  
+        }
+        else if(currentPlayer < 0)
+        {
+            currentPlayer = players.Count - 1;
+        }
+
+        if (players[currentPlayer].IsHuman)
+        {
+            humanHasTurn = true;
+        }
+        else//AI player
+        {
+            //Do ai stuff time base
+
+        }
     }
 }
