@@ -104,6 +104,8 @@ public class GameManager : MonoBehaviour
         display.SetCard(pileCard, null);
         display.ShowCard();
         newCard.GetComponentInChildren<CardInteraction>().enabled = false;
+        //set top card
+        topCard = display;
 
         //start the game
         Debug.Log("the game is allowed to start");
@@ -195,5 +197,23 @@ public class GameManager : MonoBehaviour
             //Do ai stuff time base
 
         }
+    }
+
+    public bool CanPlayAnyCard()
+    {
+        foreach (Card card in players[currentPlayer].playerHand)
+        {
+            if (IsPlayable(card))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool IsPlayable(Card card)
+    {
+        return card.cardColor == topCard.MyCard.cardColor || card.cardValue == topCard.MyCard.cardValue ||
+            card.cardColor == CardColor.NONE;
     }
 }
