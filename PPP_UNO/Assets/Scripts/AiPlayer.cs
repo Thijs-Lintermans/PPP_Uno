@@ -10,9 +10,9 @@ public class AiPlayer : Player
     }
 
     //Logic How AI is going to play or draw or decide turns
-    public void TakeTurn()
+    public override void TakeTurn()
     {
         //AI should decide what to play
-
+        Debug.Log("Ai takes a turn");
     }
 }

@@ -25,4 +25,9 @@ public class Player
     {
         playerHand.Remove(card);
     }
+
+    public virtual void TakeTurn()
+    {
+
+    }
 }

@@ -7,12 +7,11 @@ using UnityEngine.UI;
 
 public class CardDisplay : MonoBehaviour
 {
-    [Header("Colors")]
-    [SerializeField] Color32 red;
-    [SerializeField] Color32 blue;
-    [SerializeField] Color32 yellow;
-    [SerializeField] Color32 green;
-    [SerializeField] Color32 black;
+    Color32 red;
+    Color32 blue;
+    Color32 yellow;
+    Color32 green;
+    Color32 black;
     [Header("Sprites")]
     [SerializeField] Sprite reverse;
     [SerializeField] Sprite skip;
@@ -59,6 +58,13 @@ public class CardDisplay : MonoBehaviour
 
     public void SetCard(Card card, Player owner)
     {
+        var Colors = GameManager.Instance.GetColors();
+        red = Colors.red;
+        green = Colors.green;
+        yellow = Colors.yellow;
+        blue = Colors.blue;
+        black = Colors.black;
+
         myCard = card;
         SetAllColors(card.cardColor);
         SetValue(card.cardValue);

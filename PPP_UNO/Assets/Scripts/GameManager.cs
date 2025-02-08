@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Burst;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -24,6 +26,19 @@ public class GameManager : MonoBehaviour
     [SerializeField] Transform discardPileTransform;
     [SerializeField] CardDisplay topCard;
     [SerializeField] Transform directionArrow;
+    [SerializeField] GameObject wildPanel;
+    [SerializeField] WildButton redButton;
+    [SerializeField] WildButton greenButton;
+    [SerializeField] WildButton blueButton;
+    [SerializeField] WildButton yellowButton;
+    CardColor topColor = CardColor.NONE;
+    bool unoCalled;
+    [Header("Colors")]
+    [SerializeField] Color32 red;
+    [SerializeField] Color32 blue;
+    [SerializeField] Color32 yellow;
+    [SerializeField] Color32 green;
+    [SerializeField] Color32 black;
     public bool humanHasTurn { get; private set; }
  
     void Awake()
@@ -33,6 +48,11 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        wildPanel.SetActive(false);
+        redButton.SetImageColor(red);
+        greenButton.SetImageColor(green);
+        blueButton.SetImageColor(blue);
+        yellowButton.SetImageColor(yellow);
         //Initialize new deck of cards
         deck.InitializeDeck();
         //initialize players
@@ -106,7 +126,8 @@ public class GameManager : MonoBehaviour
         newCard.GetComponentInChildren<CardInteraction>().enabled = false;
         //set top card
         topCard = display;
-
+        topColor = pileCard.cardColor;
+        TintArrow();
         //start the game
         Debug.Log("the game is allowed to start");
         humanHasTurn = true;
@@ -129,6 +150,8 @@ public class GameManager : MonoBehaviour
         MoveCardToPile(cardDisplay.transform.parent.gameObject);
         //update top card
         topCard = cardDisplay;
+        topColor = cardToPlay.cardColor;
+        TintArrow();
         //implement possible logic: what should happen based card played/effects
         OnCardPlayed(topCard.MyCard);
     }
@@ -152,8 +175,21 @@ public class GameManager : MonoBehaviour
         //Do all effects needed
         ApplyCardEffects(playedCard);
         //check if player has won > return
+        if(players.Any(p => p.playerHand.Count== 0))
+        {
+            //game over winner found
+            //show ui
+            return;
+        }
 
-
+        if(playedCard.cardValue != CardValue.SKIP)
+        {
+            return;
+        }
+        if(playedCard.cardColor == CardColor.NONE && players[currentPlayer].IsHuman)
+        {
+            return ;
+        }
         SwitchPlayer();
     }
 
@@ -183,19 +219,33 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void SwitchPlayer()
+    void SwitchPlayer(bool skipNext = false)
     {
         humanHasTurn = false;
-        currentPlayer += playDirection;
 
-        if (currentPlayer > players.Count)
+        int numberOfPlayer = players.Count;
+
+        if (players[currentPlayer].playerHand.Count == 1 && !unoCalled)
         {
-            currentPlayer = 0;  
+            //message - player forgot to call uno
+             for (int  i = 0; i < 2; i++)
+            {
+                DrawCardFromDeck();
+            }
         }
-        else if(currentPlayer < 0)
+
+
+        if (skipNext)
         {
-            currentPlayer = players.Count - 1;
+            currentPlayer = (currentPlayer + 2 * playDirection + numberOfPlayer) % numberOfPlayer;
         }
+        else
+        {
+            currentPlayer = (currentPlayer + playDirection + numberOfPlayer) % numberOfPlayer;
+        }
+
+        //reset unocalled
+        unoCalled = false;
 
         if (players[currentPlayer].IsHuman)
         {
@@ -204,7 +254,7 @@ public class GameManager : MonoBehaviour
         else//AI player
         {
             //Do ai stuff time base
-
+            StartCoroutine(HandleAiTurn());
         }
     }
 
@@ -222,7 +272,7 @@ public class GameManager : MonoBehaviour
 
     bool IsPlayable(Card card)
     {
-        return card.cardColor == topCard.MyCard.cardColor || card.cardValue == topCard.MyCard.cardValue ||
+        return card.cardColor == topColor || card.cardValue == topCard.MyCard.cardValue ||
             card.cardColor == CardColor.NONE;
     }
 
@@ -261,9 +311,7 @@ public class GameManager : MonoBehaviour
     //skip next player
     void SkipPlayer()
     {
-        int numberOfPlayer = players.Count;
-
-        currentPlayer = (currentPlayer + 2 * playDirection + numberOfPlayer) % numberOfPlayer;
+        SwitchPlayer(true);//skip over the next player
 
         //message about what happens - feedback to the human player
     }
@@ -316,6 +364,73 @@ public class GameManager : MonoBehaviour
     //choose new color
     void ChooseNewColor()
     {
+        if (players[currentPlayer].IsHuman)
+        {
+            wildPanel.SetActive(true);
+            return;
+        }
 
+    }
+
+    public (Color32 red, Color32 green, Color32 yellow, Color32 blue, Color32 black) GetColors()
+    {
+        return (red, green, yellow, blue, black);
+    }
+
+    //update arrow color
+    void TintArrow()
+    {
+        switch (topColor)
+        {
+            case CardColor.RED:
+                directionArrow.GetComponent<Image>().color = red;
+                break;
+            case CardColor.YELLOW:
+                directionArrow.GetComponent<Image>().color = yellow;
+                break;
+            case CardColor.GREEN:
+                directionArrow.GetComponent<Image>().color = green;
+                break;
+            case CardColor.BLUE:
+                directionArrow.GetComponent<Image>().color = blue;
+                break;
+            case CardColor.NONE:
+                directionArrow.GetComponent<Image>().color = black;
+                break;
+        }
+    }
+
+    public void ChosenColor(CardColor newColor)
+    {
+        topColor = newColor;
+        TintArrow();
+        wildPanel.SetActive(false);
+        SwitchPlayer();
+    }
+
+    //AI turn
+    IEnumerator HandleAiTurn()
+    {
+        yield return new WaitForSeconds(1);
+
+        players[currentPlayer].TakeTurn();
+
+        //wait a little again 
+        SwitchPlayer();
+    }
+
+    //uno button call
+    public void unoButton()
+    {
+        if (players[currentPlayer].playerHand.Count == 2)
+        {
+            unoCalled = true;
+            //message for the player 
+        }
+        else
+        {
+            //for penalty if pressed wrong
+            Debug.Log("UNO button clicked but not correctly");
+        }
     }
 }
