@@ -29,6 +29,7 @@ public class CardInteraction : MonoBehaviour, IPointerEnterHandler, IPointerExit
     {
         if (cardDisplay.Owner.IsHuman && GameManager.Instance.humanHasTurn)
         {
+            LiftCard(false);
             GameManager.Instance.PlayCard(cardDisplay);
             //play the card
             Debug.Log("clicked a: " + cardDisplay.MyCard.cardColor.ToString() + cardDisplay.MyCard.cardValue.ToString());

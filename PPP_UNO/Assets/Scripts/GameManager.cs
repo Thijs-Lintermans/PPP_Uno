@@ -124,6 +124,7 @@ public class GameManager : MonoBehaviour
         display.SetCard(pileCard, null);
         display.ShowCard();
         newCard.GetComponentInChildren<CardInteraction>().enabled = false;
+        deck.AddUsedCard(pileCard);
         //set top card
         topCard = display;
         topColor = pileCard.cardColor;
@@ -154,6 +155,12 @@ public class GameManager : MonoBehaviour
         TintArrow();
         //implement possible logic: what should happen based card played/effects
         OnCardPlayed(topCard.MyCard);
+        //unhide card
+        cardDisplay.ShowCard();
+        //deactive interaction
+        cardDisplay.GetComponent<CardInteraction>().enabled = false;
+        //add the card back to the used cards deck
+        deck.AddUsedCard(cardToPlay);
     }
 
     void MoveCardToPile(GameObject currentCard)
@@ -215,6 +222,13 @@ public class GameManager : MonoBehaviour
             {
                 //show the back side
                 cardDisplay.ShowCard();
+            }
+            //see if we have a playable card > if not swithc player
+            if (!CanPlayAnyCard())
+            {
+                Debug.Log("No playable card drawn, go to next player");
+                SwitchPlayer();
+                //message here 
             }
         }
     }

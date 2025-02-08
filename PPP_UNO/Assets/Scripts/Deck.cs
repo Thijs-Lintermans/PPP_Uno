@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 public class Deck : MonoBehaviour, IPointerClickHandler
 {
     List<Card> cardDeck = new List<Card>();
+    List<Card> usedCardDeck = new List<Card>();
     // Start is called before the first frame update
     //void Start()
     //{
@@ -53,6 +54,16 @@ public class Deck : MonoBehaviour, IPointerClickHandler
     {
         if(cardDeck.Count == 0)
         {
+            //deck is empty shuffle in used cards
+            cardDeck.AddRange(usedCardDeck);
+            usedCardDeck.Clear();
+            ShuffleCardDeck();
+            //check for deck size again > return null
+            if(cardDeck.Count == 0)
+            {
+                return null;
+            }
+            //message no cards drawable
             return null;
         }
 
@@ -68,5 +79,11 @@ public class Deck : MonoBehaviour, IPointerClickHandler
         {
             GameManager.Instance.DrawCardFromDeck();
         }
+    }
+
+    //add used cards to a used card list
+    public void AddUsedCard(Card card)
+    {
+        usedCardDeck.Add(card);
     }
 }
