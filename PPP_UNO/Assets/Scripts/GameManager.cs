@@ -134,10 +134,16 @@ public class GameManager : MonoBehaviour
         humanHasTurn = true;
     }
 
-    public void PlayCard(CardDisplay cardDisplay)
+    public void PlayCard(CardDisplay cardDisplay = null, Card card = null)
     {
-        Card cardToPlay = cardDisplay.MyCard;
+        Card cardToPlay = cardDisplay?.MyCard ?? card;
         //check if card is even playable - specially for human
+
+        if(cardDisplay == null && card != null)
+        {
+            cardDisplay = FindCardDisplayForCard(card);
+        } 
+
         if (!IsPlayable(cardDisplay.MyCard))
         {
             Debug.Log("this card is not playable");
@@ -161,6 +167,24 @@ public class GameManager : MonoBehaviour
         cardDisplay.GetComponent<CardInteraction>().enabled = false;
         //add the card back to the used cards deck
         deck.AddUsedCard(cardToPlay);
+        SwitchPlayer();
+    }
+
+    //find a carddisplay based on card
+    CardDisplay FindCardDisplayForCard(Card card)
+    {
+        Player player = players[currentPlayer];
+        Transform hand = player.IsHuman ? playerHandTransform : aiHandTransforms[players.IndexOf(player) - 1];
+
+        foreach(Transform cardTransform in hand)
+        {
+            CardDisplay tempDisplay = cardTransform.GetComponentInChildren<CardDisplay>();
+            if(tempDisplay.MyCard == card)
+            {
+                return tempDisplay;
+            }
+        }
+        return null;
     }
 
     void MoveCardToPile(GameObject currentCard)
@@ -197,6 +221,7 @@ public class GameManager : MonoBehaviour
         {
             return ;
         }
+
         SwitchPlayer();
     }
 
@@ -224,7 +249,7 @@ public class GameManager : MonoBehaviour
                 cardDisplay.ShowCard();
             }
             //see if we have a playable card > if not swithc player
-            if (!CanPlayAnyCard())
+            if (!CanPlayAnyCard() && player.IsHuman)
             {
                 Debug.Log("No playable card drawn, go to next player");
                 SwitchPlayer();
@@ -233,7 +258,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void SwitchPlayer(bool skipNext = false)
+    public void SwitchPlayer(bool skipNext = false)
     {
         humanHasTurn = false;
 
@@ -427,10 +452,19 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1);
 
-        players[currentPlayer].TakeTurn();
+        players[currentPlayer].TakeTurn(topCard.MyCard, topColor);
 
         //wait a little again 
-        SwitchPlayer();
+        //SwitchPlayer();
+    }
+
+    //get next player hand size
+    public int GetNextPlayerHandSize()
+    {
+        int numberOfPlayer = players.Count;
+        int nextPlayerIndex = (currentPlayer + playDirection + numberOfPlayer) % numberOfPlayer;
+        int nextPlayerHandSize = players[nextPlayerIndex].playerHand.Count;
+        return nextPlayerHandSize; 
     }
 
     //uno button call

@@ -26,7 +26,7 @@ public class Player
         playerHand.Remove(card);
     }
 
-    public virtual void TakeTurn()
+    public virtual void TakeTurn(Card topCard, CardColor topColor)
     {
 
     }
