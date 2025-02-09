@@ -36,19 +36,36 @@ public class AiPlayer : Player
             }
         }
         //step 3: if can't play
-        if(cardToPlay == null)
+        if (cardToPlay == null)
         {
             //switch player
-            GameManager.Instance.SwitchPlayer();
+            //GameManager.Instance.SwitchPlayer();
+            GameManager.Instance.AiSwitchPlayer();
 
         }
         else//step 4: play choosen card
         {
+            if(playerHand.Count == 2)
+            {
+                GameManager.Instance.SetUnoByAi();
+                //message
+                Debug.Log(playerName + " has called uno");
+            }
             GameManager.Instance.PlayCard(null, cardToPlay);
             //if wild card choose best color
+            if(cardToPlay.cardColor == CardColor.NONE)
+            {
+                GameManager.Instance.ChosenColor(SelectBestColor());
+            }
+
+            if (cardToPlay.cardValue == CardValue.SKIP)
+            {
+                return;
+            }
 
             //switchplayer
-            GameManager.Instance.SwitchPlayer();
+            //GameManager.Instance.SwitchPlayer();
+            GameManager.Instance.AiSwitchPlayer();
         }
 
     }
@@ -138,5 +155,37 @@ public class AiPlayer : Player
         }
         //default case should never be reached
         return playableCards[0];
+    }
+
+    CardColor SelectBestColor()
+    {
+        Dictionary<CardColor, int> colorCounts = new Dictionary<CardColor, int> 
+        {
+            {CardColor.RED, 0 },
+            {CardColor.BLUE, 0 },
+            {CardColor.GREEN, 0 },
+            {CardColor.YELLOW, 0 }
+        };
+
+        foreach(Card card in playerHand)
+        {
+            if(card.cardColor != CardColor.NONE)
+            {
+                colorCounts[card.cardColor]++;
+            }
+        }
+
+        CardColor bestColor = CardColor.RED;
+        int maxCount = 0;
+        foreach(var color in colorCounts)
+        {
+            if(color.Value > maxCount)
+            {
+                bestColor = color.Key;
+                maxCount = color.Value;
+            }
+        }
+
+        return bestColor;
     }
 }

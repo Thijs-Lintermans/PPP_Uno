@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using TMPro;
 using Unity.Burst;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,6 +41,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] Color32 yellow;
     [SerializeField] Color32 green;
     [SerializeField] Color32 black;
+    [Header("UI Elements")]
+    [SerializeField] GameObject winPanel;
+    [SerializeField] TMP_Text winningText;
+    [SerializeField] List<Image> playerHighlights = new List<Image>();
+    [SerializeField] List<TMP_Text> playerCardCounts = new List<TMP_Text>();
+    [SerializeField] TMP_Text messageText;
     public bool humanHasTurn { get; private set; }
  
     void Awake()
@@ -53,6 +61,7 @@ public class GameManager : MonoBehaviour
         greenButton.SetImageColor(green);
         blueButton.SetImageColor(blue);
         yellowButton.SetImageColor(yellow);
+        winPanel.SetActive(false);
         //Initialize new deck of cards
         deck.InitializeDeck();
         //initialize players
@@ -60,6 +69,7 @@ public class GameManager : MonoBehaviour
         //deal cards
         StartCoroutine(DealStartingCards());
         //start game
+        UpdateMessageBox("Welcome to UNO!");
     }
 
     void InitializePlayers()
@@ -128,10 +138,25 @@ public class GameManager : MonoBehaviour
         //set top card
         topCard = display;
         topColor = pileCard.cardColor;
+        //pick a random color if we have a wild card played
+        if(topColor == CardColor.NONE)
+        {
+            topColor = PickRandomColor();
+        }
         TintArrow();
+
         //start the game
         Debug.Log("the game is allowed to start");
+        UpdateMessageBox("Player 1, it's your turn.");
         humanHasTurn = true;
+        UpdatePlayerUI();
+    }
+
+    CardColor PickRandomColor()
+    {
+        CardColor[] colors = (CardColor[])Enum.GetValues(typeof(CardColor));
+        int randomIndex = UnityEngine.Random.Range(0, colors.Length-1);
+        return colors[randomIndex];
     }
 
     public void PlayCard(CardDisplay cardDisplay = null, Card card = null)
@@ -167,7 +192,7 @@ public class GameManager : MonoBehaviour
         cardDisplay.GetComponent<CardInteraction>().enabled = false;
         //add the card back to the used cards deck
         deck.AddUsedCard(cardToPlay);
-        SwitchPlayer();
+        //SwitchPlayer();
     }
 
     //find a carddisplay based on card
@@ -198,6 +223,13 @@ public class GameManager : MonoBehaviour
 
         cardRect.sizeDelta = pileRect.sizeDelta;
 
+        Quaternion pileRotation = discardPileTransform.rotation;
+
+        float randomZRotation = UnityEngine.Random.Range(-10f, 10f);
+        Quaternion randomRotation = Quaternion.Euler(0, 0, randomZRotation);
+
+        currentCard.transform.rotation = pileRotation * randomRotation; 
+
         //unhide the card
     }
 
@@ -206,14 +238,9 @@ public class GameManager : MonoBehaviour
         //Do all effects needed
         ApplyCardEffects(playedCard);
         //check if player has won > return
-        if(players.Any(p => p.playerHand.Count== 0))
-        {
-            //game over winner found
-            //show ui
-            return;
-        }
 
-        if(playedCard.cardValue != CardValue.SKIP)
+
+        if(playedCard.cardValue == CardValue.SKIP)
         {
             return;
         }
@@ -221,8 +248,10 @@ public class GameManager : MonoBehaviour
         {
             return ;
         }
-
-        SwitchPlayer();
+        if (players[currentPlayer].IsHuman)
+        {
+            SwitchPlayer();
+        }
     }
 
     public void DrawCardFromDeck()
@@ -267,12 +296,21 @@ public class GameManager : MonoBehaviour
         if (players[currentPlayer].playerHand.Count == 1 && !unoCalled)
         {
             //message - player forgot to call uno
-             for (int  i = 0; i < 2; i++)
+            UpdateMessageBox("You forgot to press the UNO button, you get 2 cards.");
+            for (int  i = 0; i < 2; i++)
             {
                 DrawCardFromDeck();
             }
         }
-
+        //check for win
+        if (CheckWinCondition())
+        {
+            winPanel.SetActive(true);
+            winningText.text = players[currentPlayer].playerName + " has won the game!";
+            UpdateMessageBox(players[currentPlayer].playerName + " has won the game!");
+            //Debug.Log("Game over!" + players[currentPlayer].playerName + "has won the game!");
+            return;
+        }
 
         if (skipNext)
         {
@@ -283,11 +321,15 @@ public class GameManager : MonoBehaviour
             currentPlayer = (currentPlayer + playDirection + numberOfPlayer) % numberOfPlayer;
         }
 
+        //update UI for card amount and highlight active player
+        UpdatePlayerUI();
+
         //reset unocalled
         unoCalled = false;
 
         if (players[currentPlayer].IsHuman)
         {
+            UpdateMessageBox("Player 1, it's your turn!");
             humanHasTurn = true;
         }
         else//AI player
@@ -344,6 +386,14 @@ public class GameManager : MonoBehaviour
     }
 
     //check win condition
+    bool CheckWinCondition()
+    {
+        if (players[currentPlayer].playerHand.Count == 0)
+        {
+            return true;
+        }
+        return false;
+    }
 
     //end game
 
@@ -398,6 +448,7 @@ public class GameManager : MonoBehaviour
             }
         }
         //message of what happened
+        UpdateMessageBox(player.playerName + " has to draw " + cardAmount + " cards.");
     }
 
     //choose new color
@@ -405,6 +456,7 @@ public class GameManager : MonoBehaviour
     {
         if (players[currentPlayer].IsHuman)
         {
+            UpdateMessageBox("Choose a color!");
             wildPanel.SetActive(true);
             return;
         }
@@ -444,13 +496,17 @@ public class GameManager : MonoBehaviour
         topColor = newColor;
         TintArrow();
         wildPanel.SetActive(false);
-        SwitchPlayer();
+        if (players[currentPlayer].IsHuman)
+        {
+            SwitchPlayer();
+        }
     }
 
     //AI turn
     IEnumerator HandleAiTurn()
     {
-        yield return new WaitForSeconds(1);
+        UpdateMessageBox(players[currentPlayer].playerName + " has the turn!");
+        yield return new WaitForSeconds(2f);
 
         players[currentPlayer].TakeTurn(topCard.MyCard, topColor);
 
@@ -473,12 +529,53 @@ public class GameManager : MonoBehaviour
         if (players[currentPlayer].playerHand.Count == 2)
         {
             unoCalled = true;
-            //message for the player 
+            //message for the player
+            UpdateMessageBox("You called UNO! Good Luck");
         }
         else
         {
             //for penalty if pressed wrong
-            Debug.Log("UNO button clicked but not correctly");
+            UpdateMessageBox("UNO button clicked but not correctly!");
         }
+    }
+
+    public void SetUnoByAi()
+    {
+        UpdateMessageBox(players[currentPlayer].playerName + " has called UNO");
+        unoCalled = true;
+    }
+
+    void UpdatePlayerUI()
+    {
+        for (int i = 0; i < players.Count; i++)
+        {
+            if(i == currentPlayer)
+            {
+                playerHighlights[i].color = yellow;
+            }
+            else
+            {
+                playerHighlights[i].color = Color.white;
+            }
+
+            //Text card amount
+            playerCardCounts[i].text = players[i].playerHand.Count.ToString();
+        }
+    }
+
+    void UpdateMessageBox(string message)
+    {
+        messageText.text = message;
+    }
+
+    public void AiSwitchPlayer()
+    {
+        StartCoroutine(SwitchPlayerDelayed());
+    }
+
+    IEnumerator SwitchPlayerDelayed()
+    {
+        yield return new WaitForSeconds(2f);
+        SwitchPlayer();
     }
 }
